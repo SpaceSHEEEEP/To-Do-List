@@ -1,3 +1,5 @@
+// this is inspired bu Avey Dev https://www.youtube.com/watch?v=Pom6dXvGun0&t=187s
+
 #include <iostream> 
 #include <stdio.h>
 #include <sqlite3.h>
@@ -128,9 +130,35 @@ void addTask(sqlite3 * db)
 	std::cout << "What's your next task?" << '\n';
 	std::cout << "task: ";
 	getline(std::cin, taskTitle);
+	if (taskTitle.length() == 0) 
+	{
+		std::cout << "Invalid task name" << '\n';
+		return;
+	}
 
 	// add into the todo list
+	std::string sqlInput{"INSERT INTO todos (title, completed) VALUES(?, ?)"};
 
+	sqlite3_stmt * statement;
+	int returnCall = sqlite3_prepare_v2(db, sqlInput.c_str(), -1, &statement, nullptr);
+	if (returnCall != SQLITE_OK)
+	{
+		std::cout << "cant prepare" << '\n';
+		std::cout << "error: " << sqlite3_errmsg(db) << '\n';	
+	}
+
+	// bind params!! this is so we dont get sql injections
+	sqlite3_bind_text(statement, 1, taskTitle.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_int(statement, 2, 0);
+
+	// execute statement
+	if ((returnCall = sqlite3_step(statement)) != SQLITE_DONE)
+	{
+		std::cout << "prepare is fine but cant add" << '\n';
+		std::cout << "error: " << sqlite3_errmsg(db) << '\n';
+	}
+
+	sqlite3_finalize(statement);
 }
 
 void deleteTask(sqlite3 * db)
@@ -143,21 +171,41 @@ void deleteTask(sqlite3 * db)
 	std::string sqlInput{"DELETE FROM todos WHERE id=" + std::to_string(id_num) + ";"};
 	sqlite3_stmt * statement;
 	int returnCode = sqlite3_prepare_v2(db, sqlInput.c_str(), -1, &statement, nullptr);
-	if ((returnCode = sqlite3_step(statement)) != SQLITE_OK)
+	if ((returnCode = sqlite3_step(statement)) != SQLITE_DONE)
 	{
 		std::cout << "cant prepare the statement to delete task" << '\n';
 		std::cout << "error: " << sqlite3_errmsg(db) << '\n';
-		return;	
 	}
 	
 	sqlite3_finalize(statement);
 }
 
-
-
 void completeTask(sqlite3 * db)
 {
+	int id_num{0};
+	std::cout << "What's the id number of the task you want marked as completed/incomplete?" << '\n';
+	std::cout << "mark this: ";
+	std::cin >> id_num;
 
+	std::string sqlInput{"UPDATE todos SET completed WHERE id = ?"};
+	sqlite3_stmt * statement;
+	int returnCode = sqlite3_prepare_v2(db, sqlInput.c_str(), -1, &statement, nullptr);
+	if (returnCode != SQLITE_OK) 
+	{
+		std::cout << "cant prepare" << '\n';
+		std::cout << "error: " << sqlite3_errmsg(db) << '\n';
+	}
+
+	sqlite3_bind_int(statement, 2, 1);
+
+	returnCode = sqlite3_step(statement);
+	if (returnCode != SQLITE_DONE)
+	{
+		std::cout << "can prep but cant complete task" << '\n';
+		std::cout << "error: " << sqlite3_errmsg(db) << '\n';
+	}
+
+	sqlite3_finalize(statement);
 }
 
 sqlite3 * setupDataBase()

@@ -171,6 +171,31 @@ void markTask(sqlite3 * db)
 	std::cout << "mark this: ";
 	std::cin >> id_num;
 
+	// find out if this is completed(1) or incomplete(0)
+	std::string sqlInput{"SELECT completed FROM todos WHERE id = ?;"};
+	sqlite3_stmt * statement;
+	int returnCode = sqlite3_prepare_v2(db, sqlInput.c_str(), -1, &statement, nullptr);
+	if (returnCode != SQLITE_OK) 
+	{
+		std::cout << "cant prepare" << '\n';
+		std::cout << "error: " << sqlite3_errmsg(db) << '\n';
+	}
+	else std::cout << "prep ok! " << '\n';
+
+	sqlite3_bind_int(statement, 1, id_num);
+
+	returnCode = sqlite3_step(statement);
+	if (returnCode != SQLITE_ROW)
+	{
+		std::cout << "error cant read status " << '\n';
+		sqlite3_finalize(statement);
+		return;
+	}
+	
+	bool completed{false};
+	if (sqlite3_column_int(statement, 2) != 0) completed = true;
+
+	// change completed to incomplete or vice versa TODO!!!
 	std::string sqlInput{"UPDATE todos SET completed = 1 WHERE id = ?;"};
 	sqlite3_stmt * statement;
 	int returnCode = sqlite3_prepare_v2(db, sqlInput.c_str(), -1, &statement, nullptr);

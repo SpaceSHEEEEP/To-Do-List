@@ -6,7 +6,7 @@ all :  run
 
 run :  
 	clear
-	$(COMPILER) todos.cpp -o $(OUTPUT_NAME) $(LINKER)
+	$(COMPILER) todos.cpp sql_functions.cpp -o $(OUTPUT_NAME) $(LINKER)
 	./$(OUTPUT_NAME)
 
 clean: 

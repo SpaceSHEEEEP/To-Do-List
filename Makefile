@@ -2,7 +2,7 @@ COMPILER = g++
 OUTPUT_NAME = todoApp
 LINKER = -lsqlite3
 
-all :  run_FLTK
+all : fltk 
 
 run :  
 	clear
@@ -13,7 +13,7 @@ clean:
 	clear
 	rm $(OUTPUT_NAME)
 
-run_FLTK :
+fltk :
 	clear
 	$(COMPILER) FLTK_wireframe.cpp -o FLTK_wireframe_app -lfltk
 	./FLTK_wireframe_app

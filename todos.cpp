@@ -19,15 +19,16 @@ int main()
 	std::cout << "!!!! TERMINAL TODO LIST !!!!" << '\n';
 
 	bool wannaQuit{false};
-	while (!wannaQuit)
+	while (wannaQuit) // originally !wannaQuit
 	{
-		askForInput(db, wannaQuit);
-		std::cout << "=============================================\n\n";
+		// askForInput(db, wannaQuit);
+		// std::cout << "=============================================\n\n";
 	}
 
+	FLTKStart(db);
+	
 	sqlite3_close(db);
 
-	FLTKStart();
 
 	return 0;
 }

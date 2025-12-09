@@ -14,6 +14,7 @@ void viewTasks(sqlite3 * db);
 
 // this cin asks for a string of our task title and adds it to our todos.db
 void addTask(sqlite3 * db);
+bool addTask(sqlite3 * db, const char* newTaskTitle); // TODO
 
 // this cin asks for task id number and deletes it from todos.db
 void deleteTask(sqlite3 * db);

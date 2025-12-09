@@ -10,14 +10,33 @@
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
-
+#include <FL/Fl_Input.H>
 #include "FLTK_wireframe.hpp"
+#include "sql_functions.hpp"
 
 // CONSTANTS
 const int WINDOW_WIDTH{640};
 const int WINDOW_HEIGHT{480};
 
 static std::vector<std::string> taskTitlesTest = {"buy chicken", "buy fish", "buy coffee", "eat fried chicken", "drink water", "visit friend", "fry chicken", "find a job", "get married", "get money", "grind for honor", "get rich", "drive car", "make to do list", "learn vim"};
+
+void testFunc(Fl_Widget* widget, void* userdata)
+{
+	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
+	// then i should redraw FLTK i think
+	Fl_Input* userData = static_cast<Fl_Input*>(widget);
+	sqlite3 * db = static_cast<sqlite3*>(userdata);
+	std::cout << "testFunc was called" << '\n';
+	std::cout << "you entered " << userData->value() << '\n';
+	if ( addTask( db, userData->value() ) ) 
+	{
+		std::cout << "sent to addTask. went ok! didnt add anything tho haha" << '\n';
+	}
+	else 
+	{
+		std::cout << "sent to addTask. NOT OK!" << '\n';
+	}
+}
 
 Fl_Group* newTaskBox(std::string taskTitle)
 {
@@ -37,11 +56,11 @@ Fl_Group* newTaskBox(std::string taskTitle)
 	return row;
 }
 
-int FLTKStart()
+int FLTKStart(sqlite3 * db)
 {
 
-	std::cout << "hello world!" << '\n'; // TODO FIX 640
-	Fl_Window* window = new Fl_Window(640, WINDOW_HEIGHT, "HELLO FLTK!");
+	std::cout << "hello world!" << '\n'; 
+	Fl_Window* window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
 
 	Fl_Pack* buttonsPack = new Fl_Pack(510, 10, 110, 460);
 	buttonsPack->type(Fl_Pack::VERTICAL);
@@ -56,9 +75,13 @@ int FLTKStart()
 
 	buttonsPack->end();
 
+	// i need a text rectangle to get new tasks TODO
+	Fl_Input* taskGetter = new Fl_Input(10, 10, 480, 40, "");
+	taskGetter->callback(testFunc, db);
+
 	// Fl_Scroll(int x, int y, int w, int h, const* char label = 0)
 	// this gives a scrollable box
-	Fl_Scroll* scroll = new Fl_Scroll(10, 10, 480, 460);	
+	Fl_Scroll* scroll = new Fl_Scroll(10, 60, 480, 410);	
 	scroll->box(FL_BORDER_BOX);
 	scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
 	scroll->begin();

@@ -2,6 +2,7 @@
 
 #include <iostream> 
 #include "sql_functions.hpp"
+#include "FLTK_wireframe.hpp"
 
 int main()
 {
@@ -25,6 +26,9 @@ int main()
 	}
 
 	sqlite3_close(db);
+
+	FLTKStart();
+
 	return 0;
 }
 

@@ -12,13 +12,13 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Input.H>
 #include "GUI.hpp"
+#include "Database.hpp"
 
 void GUI::testFunc(Fl_Widget* widget, void* userdata)
 {
 	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
 	Fl_Input* userData = static_cast<Fl_Input*>(widget);
-	std::cout << "testFunc was called" << '\n';
-	std::cout << "you entered " << userData->value() << '\n';
+	std::cout << "testFunc was called. you entered: " << userData->value() << '\n';
 
 	// add to db
 
@@ -82,8 +82,10 @@ int GUI::run()
 	std::vector<Fl_Group*> rows;
 	// TODO instead of taskTitlesTest, i want the actual db tasks.
 	// i need viewTask to give me a vector of tasks i think
-	for (std::string & s : taskTitlesTest)
+    std::vector<Task> tasklist = m_db.getTaskList();
+	for (Task & t : tasklist)
 	{
+        std::string s = t.title;
 		rows.push_back(GUI::taskBox(s));
 	}
 
@@ -92,7 +94,10 @@ int GUI::run()
 	scroll->end();
 	window->end();
 	window->show();
-	return Fl::run();
+
+    int running = Fl::run();
+    std::cout << "closing GUI" << '\n';
+	return running;
 }
 
 

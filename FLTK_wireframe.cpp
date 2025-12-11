@@ -12,33 +12,22 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Input.H>
 #include "FLTK_wireframe.hpp"
-#include "sql_functions.hpp"
-
-// CONSTANTS
-const int WINDOW_WIDTH{640};
-const int WINDOW_HEIGHT{480};
 
 static std::vector<std::string> taskTitlesTest = {"buy chicken", "buy fish", "buy coffee", "eat fried chicken", "drink water", "visit friend", "fry chicken", "find a job", "get married", "get money", "grind for honor", "get rich", "drive car", "make to do list", "learn vim"};
 
 void testFunc(Fl_Widget* widget, void* userdata)
 {
 	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
-	// then i should redraw FLTK i think
 	Fl_Input* userData = static_cast<Fl_Input*>(widget);
-	sqlite3 * db = static_cast<sqlite3*>(userdata);
 	std::cout << "testFunc was called" << '\n';
 	std::cout << "you entered " << userData->value() << '\n';
-	if ( addTask( db, userData->value() ) ) 
-	{
-		std::cout << "sent to addTask. went ok! didnt add anything tho haha" << '\n';
-	}
-	else 
-	{
-		std::cout << "sent to addTask. NOT OK!" << '\n';
-	}
+
+	// add to db
+
+	// TODO reload the list
 }
 
-Fl_Group* newTaskBox(std::string taskTitle)
+Fl_Group* taskBox(std::string & taskTitle)
 {
 	Fl_Group* row = new Fl_Group(0, 0, 480, 40);
 	row->begin();
@@ -56,9 +45,8 @@ Fl_Group* newTaskBox(std::string taskTitle)
 	return row;
 }
 
-int FLTKStart(sqlite3 * db)
+int FLTKStart()
 {
-
 	std::cout << "hello world!" << '\n'; 
 	Fl_Window* window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
 
@@ -75,9 +63,8 @@ int FLTKStart(sqlite3 * db)
 
 	buttonsPack->end();
 
-	// i need a text rectangle to get new tasks TODO
 	Fl_Input* taskGetter = new Fl_Input(10, 10, 480, 40, "");
-	taskGetter->callback(testFunc, db);
+	taskGetter->callback(testFunc);
 
 	// Fl_Scroll(int x, int y, int w, int h, const* char label = 0)
 	// this gives a scrollable box
@@ -95,16 +82,16 @@ int FLTKStart(sqlite3 * db)
 	// these are boxes that are packed nicely
 	// each group is a box of the task, and a check box
 	std::vector<Fl_Group*> rows;
+	// TODO instead of taskTitlesTest, i want the actual db tasks.
+	// i need viewTask to give me a vector of tasks i think
 	for (std::string & s : taskTitlesTest)
 	{
-		std::cout << s << '\n';
-		rows.push_back(newTaskBox(s));
+		rows.push_back(taskBox(s));
 	}
 
 	pack1->end();
 	// pack1->resizable(nullptr);
 	scroll->end();
-
 	window->end();
 	window->show();
 	return Fl::run();

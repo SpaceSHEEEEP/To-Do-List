@@ -148,34 +148,8 @@ bool addTask(sqlite3 * db, const char* newTaskTitle)
 		std::cout << "title length non zero TEST" << '\n';
 		return true;
 	}
-
-	// add into the todo list
-	std::string sqlInput{"INSERT INTO todos (title) VALUES(?)"};
-
-	sqlite3_stmt * statement;
-	int returnCall = sqlite3_prepare_v2(db, sqlInput.c_str(), -1, &statement, nullptr);
-	if (returnCall != SQLITE_OK)
-	{
-		std::cout << "cant prepare" << '\n';
-		std::cout << "error: " << sqlite3_errmsg(db) << '\n';	
-	}
-	else std::cout << "prep ok! " << '\n';
-
-	// bind params!! this is so we dont get sql injections
-	sqlite3_bind_text(statement, 1, newTaskTitle, -1, SQLITE_TRANSIENT);
-	// sqlite3_bind_int(statement, 2, 0);
-
-	// execute statement
-	if ((returnCall = sqlite3_step(statement)) != SQLITE_DONE)
-	{
-		std::cout << "prepare is fine but cant add" << '\n';
-		std::cout << "error: " << sqlite3_errmsg(db) << '\n';
-	}
-	else std::cout << "execute ok! " << '\n';
-
-	sqlite3_finalize(statement);
+	// this func is for testing purposes
 }
-
 
 void deleteTask(sqlite3 * db)
 {

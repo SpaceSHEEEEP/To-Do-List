@@ -17,10 +17,13 @@
 void GUI::testFunc(Fl_Widget* widget, void* userdata)
 {
 	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
-	Fl_Input* userData = static_cast<Fl_Input*>(widget);
-	std::cout << "testFunc was called. you entered: " << userData->value() << '\n';
+	Fl_Input* inputData = static_cast<Fl_Input*>(widget);
+    GUI* gui = static_cast<GUI*>(userdata);
+    std::string newTaskTitle = inputData->value();
+	std::cout << "testFunc was called. you entered: " << newTaskTitle << '\n';
 
 	// add to db
+    gui->m_db.addTask(newTaskTitle);
 
 	// TODO reload the list
 }

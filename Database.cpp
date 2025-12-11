@@ -3,13 +3,24 @@
 #include <sqlite3.h>
 #include "Database.hpp"
 
-bool Database::addTask(std::string taskTitle)
+bool Database::addTask(std::string & taskTitle)
 {
-    if (taskTitle.length() == 0) 
+    // wanna remove whitespace from front 
+    if (taskTitle[0] == ' ') 
     {
-        std::cout << "Invalid task name" << '\n';
-        return false;
+        int startingIndex{0};
+        while (taskTitle[startingIndex] == ' ') startingIndex++;
+        taskTitle = taskTitle.substr(startingIndex);
     }
+    // remove whitespace from back
+    if (taskTitle[taskTitle.size()-1] == ' ')
+    {
+        int lastIndex = taskTitle.size() - 1;
+        while (taskTitle[lastIndex] == ' ') lastIndex--;
+        taskTitle = taskTitle.substr(0, lastIndex + 1);
+    }
+    std::cout << "add function test. taskTitle: " << taskTitle << '\n';
+    // if (taskTitle.length() == 0) // dont need this because fltk does it for me
 
     // add into the todo list
     std::string sqlInput{"INSERT INTO todos (title) VALUES(?)"};
@@ -120,6 +131,11 @@ bool Database::markTask(int id_num)
     return true;
 }
 
+std::vector<Task> Database::getTaskList()
+{
+    return m_tasks;
+}
+
 // should add throw exeptions since c++ constructor cant return true or false
 Database::Database() 
 {
@@ -163,11 +179,6 @@ Database::Database()
 
 	sqlite3_finalize(statement);
 
-}
-
-std::vector<Task> Database::getTaskList()
-{
-    return m_tasks;
 }
 
 Database::~Database()

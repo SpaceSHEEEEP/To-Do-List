@@ -1,6 +1,8 @@
 #pragma once
 
 #include <FL/Fl_Group.H>
+#include <FL/Fl_Pack.H>
+
 #include <sqlite3.h>
 #include <vector>
 
@@ -11,13 +13,15 @@ class GUI
     Database m_db;
     const int WINDOW_WIDTH{640};
     const int WINDOW_HEIGHT{480};
-    std::vector<std::string> taskTitlesTest = {"buy chicken", "buy fish", "buy coffee", "eat fried chicken", "drink water", "visit friend", "fry chicken", "find a job", "get married", "get money", "grind for honor", "get rich", "drive car", "make to do list", "learn vim"};
+	Fl_Window* m_window; 
+    Fl_Pack* m_taskPack;
+
     std::vector<int> m_ids_selected; // when checkbox activated. maybe this or vector<bool> all false
     
-    Fl_Group* taskBox(std::string & taskTitle);
+    Fl_Group* taskBox(Task & t);
     static void testFunc(Fl_Widget* widget, void* userdata); // callback
 
 public:
     int run();
-    bool refresh();
+    bool drawTasks();
 };

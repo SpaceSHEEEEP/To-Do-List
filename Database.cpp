@@ -47,6 +47,28 @@ bool Database::addTask(std::string & taskTitle)
     }
     else std::cout << "execute ok! " << '\n';
 
+    // TODO add new task to m_tasks vector
+    sqlInput = "SELECT MAX(id) FROM todos;";
+    returnCall = sqlite3_prepare_v2(m_db, sqlInput.c_str(), -1, &statement, nullptr);
+    if (returnCall != SQLITE_OK)
+    {
+        std::cout << "cant prepare" << '\n';
+        std::cout << "error: " << sqlite3_errmsg(m_db) << '\n';
+        return false;	
+    }
+    else std::cout << "prep ok! " << '\n';
+
+    // execute statement
+    if ((returnCall = sqlite3_step(statement)) != SQLITE_ROW)
+    {
+        std::cout << "prepare is fine but execute to find max id" << '\n';
+        std::cout << "error: " << sqlite3_errmsg(m_db) << '\n';
+        return false;
+    }
+    else std::cout << "execute ok! " << '\n';
+    int maxID = sqlite3_column_int(statement, 0);
+    m_tasks.push_back(Task(maxID, taskTitle, 0));
+
     sqlite3_finalize(statement);
     return true;
 }

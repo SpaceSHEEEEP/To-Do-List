@@ -26,9 +26,12 @@ void GUI::testFunc(Fl_Widget* widget, void* userdata)
     gui->m_db.addTask(newTaskTitle);
 
 	// TODO reload the list
+    gui->m_taskPack->add(gui->taskBox((gui->m_db.getTaskList()).back()));
+    gui->m_taskPack->redraw();
+    std::cout << "redrew m_taskPack" << '\n';
 }
 
-Fl_Group* GUI::taskBox(std::string & taskTitle)
+Fl_Group* GUI::taskBox(Task & t)
 {
 	Fl_Group* row = new Fl_Group(0, 0, 480, 40);
 	row->begin();
@@ -37,7 +40,7 @@ Fl_Group* GUI::taskBox(std::string & taskTitle)
 	item->labelsize(18);
 	item->box(FL_UP_BOX);
 	item->color(FL_WHITE);
-	item->copy_label(taskTitle.c_str());
+	item->copy_label(t.title.c_str());
 
 	Fl_Check_Button* checkButton = new Fl_Check_Button(445, 10, 20, 20);
 
@@ -49,7 +52,7 @@ Fl_Group* GUI::taskBox(std::string & taskTitle)
 int GUI::run()
 {
 	std::cout << "starting GUI!" << '\n'; 
-	Fl_Window* window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
+	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
 
 	Fl_Pack* buttonsPack = new Fl_Pack(510, 10, 110, 460);
 	buttonsPack->type(Fl_Pack::VERTICAL);
@@ -73,12 +76,12 @@ int GUI::run()
 	scroll->box(FL_BORDER_BOX);
 	scroll->type(Fl_Scroll::VERTICAL_ALWAYS);
 	scroll->begin();
-		
+	
 	// this is in scrollable box and packs boxes nicely
-	Fl_Pack* pack1 = new Fl_Pack(0, 0, 480, 460);
-	pack1->type(Fl_Pack::VERTICAL);
-	pack1->spacing(1);
-	pack1->begin();
+	this->m_taskPack = new Fl_Pack(0, 0, 480, 460);
+	this->m_taskPack->type(Fl_Pack::VERTICAL);
+	this->m_taskPack->spacing(1);
+	this->m_taskPack->begin();
 
 	// these are boxes that are packed nicely
 	// each group is a box of the task, and a check box
@@ -88,19 +91,19 @@ int GUI::run()
     std::vector<Task> tasklist = m_db.getTaskList();
 	for (Task & t : tasklist)
 	{
-        std::string s = t.title;
-		rows.push_back(GUI::taskBox(s));
+		rows.push_back(GUI::taskBox(t));
 	}
 
-	pack1->end();
-	// pack1->resizable(nullptr);
+    std::cout << "drew pack of tasks" << '\n';
+
+    this->m_taskPack->end();
+	// this->m_taskPack->resizable(nullptr);
+
 	scroll->end();
-	window->end();
-	window->show();
+	m_window->end();
+	m_window->show();
 
     int running = Fl::run();
     std::cout << "closing GUI" << '\n';
 	return running;
 }
-
-

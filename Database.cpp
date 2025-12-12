@@ -110,7 +110,7 @@ bool Database::deleteTask(long id_num)
     return true;
 }
 
-bool Database::markTask(long id_num)
+bool Database::markTask(long id_num) // now can only set to complete. fix this
 {
     // find out if this is completed(1) or incomplete(0)
     std::string sqlInput{"SELECT completed FROM todos WHERE id = ?;"};
@@ -160,6 +160,17 @@ bool Database::markTask(long id_num)
     else std::cout << "execute ok!" << '\n';
 
     sqlite3_finalize(statement);
+
+    // Update m_tasks
+    for (int i = 0; i < m_tasks.size(); i++)
+    {
+        if (m_tasks[i].id_num == id_num)
+        {
+            m_tasks[i].completed++;
+            break;
+        }
+    }
+
     return true;
 }
 

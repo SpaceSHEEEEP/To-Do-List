@@ -23,6 +23,7 @@ class GUI
     static void getNewTaskTitle(Fl_Widget* widget, void* userdata); // callback
 
     static void deleteTasks(Fl_Widget* widget, void* userdata);
+    static void markTasks(Fl_Widget* widget, void* userdata);
     static void updateIDs(Fl_Widget* widget, void* userdata);
 
 public:

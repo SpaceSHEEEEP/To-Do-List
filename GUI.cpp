@@ -1,3 +1,5 @@
+// a lot of copy and pasting, fix this TODO
+
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -14,8 +16,6 @@
 #include <FL/Fl_Input.H>
 #include "GUI.hpp"
 #include "Database.hpp"
-
-int colour = 0;
 
 Fl_Group* GUI::taskBox(Task & t)
 {
@@ -34,7 +34,7 @@ Fl_Group* GUI::taskBox(Task & t)
 	item->copy_label(t.title.c_str());
 	if (t.completed == 0) item->color(fl_rgb_color(253, 255, 182));
     else item->color(fl_rgb_color(228, 241, 238));
-    
+
 	Fl_Check_Button* checkButton = new Fl_Check_Button(445, 10, 20, 20);
     checkButton->type(FL_TOGGLE_BUTTON);
     checkButton->callback(updateIDs, this);
@@ -88,6 +88,32 @@ void GUI::deleteTasks(Fl_Widget* widget, void* userdata)
 
 }
 
+void GUI::markTasks(Fl_Widget* widget, void* userdata)
+{
+    std::cout << "mark button pressed" << '\n';
+    // TODO this also calls the getNewTaskTitle function? idk why 
+
+    GUI* gui = static_cast<GUI*>(userdata);
+    for (long l : gui->m_ids)
+    {
+        if (gui->m_db.markTask(l)) std::cout << "marked " << l << '\n';
+        else std::cout << "failed to mark " << l << '\n';
+    }
+    (gui->m_ids).clear();
+    
+    // redraw taskBoxes
+    gui->m_taskPack->clear();
+    for (Task t : gui->m_db.getTaskList())
+    {
+        std::cout << "adding " << t.title << '\n';
+        gui->m_taskPack->add(gui->taskBox(t));
+    }    
+    gui->m_taskPack->redraw();
+    std::cout << "redrew m_taskPack" << '\n';
+
+
+}
+
 void GUI::updateIDs(Fl_Widget* widget, void* userdata)
 {
     Fl_Box* id_num_box_ptr = static_cast<Fl_Box*>(widget->parent()->child(0));
@@ -124,7 +150,7 @@ int GUI::run()
     deleteButton->callback(GUI::deleteTasks, this);
 
 	Fl_Button* markButton = new Fl_Button(0, 0, 80, 30, "mark");
-    // markButton->callback(GUI::deleteButtonFunction, this);
+    markButton->callback(GUI::markTasks, this);
 
 	Fl_Button* sortButton = new Fl_Button(0, 0, 80, 30, "sort");
     // sortButton->callback(GUI::deleteButtonFunction, this);

@@ -19,7 +19,9 @@ class GUI
     std::vector<int> m_ids_selected; // when checkbox activated. maybe this or vector<bool> all false
     
     Fl_Group* taskBox(Task & t);
-    static void testFunc(Fl_Widget* widget, void* userdata); // callback
+    static void getNewTaskTitle(Fl_Widget* widget, void* userdata); // callback
+
+    static void deleteButtonFunction(Fl_Widget* widget, long p);
 
 public:
     int run();

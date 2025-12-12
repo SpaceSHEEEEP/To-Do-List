@@ -14,23 +14,6 @@
 #include "GUI.hpp"
 #include "Database.hpp"
 
-void GUI::testFunc(Fl_Widget* widget, void* userdata)
-{
-	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
-	Fl_Input* inputData = static_cast<Fl_Input*>(widget);
-    GUI* gui = static_cast<GUI*>(userdata);
-    std::string newTaskTitle = inputData->value();
-	std::cout << "testFunc was called. you entered: " << newTaskTitle << '\n';
-
-	// add to db
-    gui->m_db.addTask(newTaskTitle);
-
-	// TODO reload the list
-    gui->m_taskPack->add(gui->taskBox((gui->m_db.getTaskList()).back()));
-    gui->m_taskPack->redraw();
-    std::cout << "redrew m_taskPack" << '\n';
-}
-
 Fl_Group* GUI::taskBox(Task & t)
 {
 	Fl_Group* row = new Fl_Group(0, 0, 480, 40);
@@ -43,10 +26,40 @@ Fl_Group* GUI::taskBox(Task & t)
 	item->copy_label(t.title.c_str());
 
 	Fl_Check_Button* checkButton = new Fl_Check_Button(445, 10, 20, 20);
+    checkButton->type(FL_TOGGLE_BUTTON);
+    checkButton->callback(deleteButtonFunction, static_cast<long>(t.id_num));
 
 	row->end();
 	// row->resizable(item);
 	return row;
+}
+
+void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
+{
+	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
+	Fl_Input* inputData = static_cast<Fl_Input*>(widget);
+    GUI* gui = static_cast<GUI*>(userdata);
+
+    std::string newTaskTitle = inputData->value();
+	std::cout << "getNewTaskTitle was called. you entered: " << newTaskTitle << '\n';
+
+	// add to db
+    gui->m_db.addTask(newTaskTitle);
+
+	// TODO reload the list
+    gui->m_taskPack->add(gui->taskBox((gui->m_db.getTaskList()).back()));
+    gui->m_taskPack->redraw();
+    std::cout << "redrew m_taskPack" << '\n';
+}
+
+void GUI::deleteButtonFunction(Fl_Widget* widget, long p)
+{
+    std::cout << "delete button pressed" << '\n';
+    // TODO this also calls the getNewTaskTitle function? idk why 
+
+    Fl_Check_Button* button = static_cast<Fl_Check_Button*>(widget);
+    std::cout << "the value of this button is " << static_cast<int>(button->value()) << '\n';
+    std::cout << "the id of this button is " << p << '\n';
 }
 
 int GUI::run()
@@ -60,15 +73,22 @@ int GUI::run()
 	buttonsPack->begin();
 
 	// buttons on the side 
-	new Fl_Button(0, 0, 80, 30, "add");
-	new Fl_Button(0, 0, 80,30, "delete");	
-	new Fl_Button(0, 0, 80, 30, "mark");
-	new Fl_Button(0, 0, 80, 30, "sort");
+	Fl_Button* addButton = new Fl_Button(0, 0, 80, 30, "add");
+    // addButton->callback(GUI::deleteButtonFunction, this);
+
+	Fl_Button* deleteButton = new Fl_Button(0, 0, 80,30, "delete");
+    // deleteButton->callback(GUI::deleteButtonFunction, this);
+
+	Fl_Button* markButton = new Fl_Button(0, 0, 80, 30, "mark");
+    // markButton->callback(GUI::deleteButtonFunction, this);
+
+	Fl_Button* sortButton = new Fl_Button(0, 0, 80, 30, "sort");
+    // sortButton->callback(GUI::deleteButtonFunction, this);
 
 	buttonsPack->end();
 
 	Fl_Input* taskGetter = new Fl_Input(10, 10, 480, 40, "");
-	taskGetter->callback(GUI::testFunc, this);
+	taskGetter->callback(GUI::getNewTaskTitle, this);
 
 	// Fl_Scroll(int x, int y, int w, int h, const* char label = 0)
 	// this gives a scrollable box

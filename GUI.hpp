@@ -5,6 +5,7 @@
 
 #include <sqlite3.h>
 #include <vector>
+#include <unordered_set>
 
 #include "Database.hpp"
 
@@ -16,12 +17,13 @@ class GUI
 	Fl_Window* m_window; 
     Fl_Pack* m_taskPack;
 
-    std::vector<int> m_ids_selected; // when checkbox activated. maybe this or vector<bool> all false
+    std::unordered_set<long> m_ids; // when checkbox activated. maybe this or vector<bool> all false
     
     Fl_Group* taskBox(Task & t);
     static void getNewTaskTitle(Fl_Widget* widget, void* userdata); // callback
 
-    static void deleteButtonFunction(Fl_Widget* widget, long p);
+    static void deleteButtonFunction(Fl_Widget* widget);
+    static void getID(Fl_Widget* widget, void* userdata);
 
 public:
     int run();

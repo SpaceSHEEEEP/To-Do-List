@@ -11,8 +11,8 @@ class Database // TODO comment stuff
 
 public:
     bool addTask(std::string & taskTitle);
-    bool deleteTask(int id_num);
-    bool markTask(int id_num);
+    bool deleteTask(long id_num);
+    bool markTask(long id_num);
     std::vector<Task> getTaskList();
     Database(); 
     ~Database();

@@ -73,7 +73,7 @@ bool Database::addTask(std::string & taskTitle)
     return true;
 }
 
-bool Database::deleteTask(int id_num)
+bool Database::deleteTask(long id_num)
 {
     std::string sqlInput{"DELETE FROM todos WHERE id = ?;"};
     sqlite3_stmt * statement;
@@ -100,7 +100,7 @@ bool Database::deleteTask(int id_num)
     return true;
 }
 
-bool Database::markTask(int id_num)
+bool Database::markTask(long id_num)
 {
     // find out if this is completed(1) or incomplete(0)
     std::string sqlInput{"SELECT completed FROM todos WHERE id = ?;"};

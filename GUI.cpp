@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <unordered_set>
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
@@ -19,6 +20,12 @@ Fl_Group* GUI::taskBox(Task & t)
 	Fl_Group* row = new Fl_Group(0, 0, 480, 40);
 	row->begin();
 
+    // make an invisible box that has id_num so that i dont need to make a struct in heap and
+    // worry about freeing memory later
+    // since FLTK can free its own memory and i cant
+    Fl_Box* id_num = new Fl_Box(0, 0, 0, 0, nullptr);
+    id_num->copy_label(std::to_string(t.id_num).c_str()); 
+
 	Fl_Box* item = new Fl_Box(0, 0, 480, 40, "");
 	item->labelsize(18);
 	item->box(FL_UP_BOX);
@@ -27,7 +34,7 @@ Fl_Group* GUI::taskBox(Task & t)
 
 	Fl_Check_Button* checkButton = new Fl_Check_Button(445, 10, 20, 20);
     checkButton->type(FL_TOGGLE_BUTTON);
-    checkButton->callback(deleteButtonFunction, static_cast<long>(t.id_num));
+    checkButton->callback(getID, this);
 
 	row->end();
 	// row->resizable(item);
@@ -52,14 +59,28 @@ void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
     std::cout << "redrew m_taskPack" << '\n';
 }
 
-void GUI::deleteButtonFunction(Fl_Widget* widget, long p)
+void GUI::deleteButtonFunction(Fl_Widget* widget)
 {
     std::cout << "delete button pressed" << '\n';
     // TODO this also calls the getNewTaskTitle function? idk why 
+}
 
-    Fl_Check_Button* button = static_cast<Fl_Check_Button*>(widget);
-    std::cout << "the value of this button is " << static_cast<int>(button->value()) << '\n';
-    std::cout << "the id of this button is " << p << '\n';
+void GUI::getID(Fl_Widget* widget, void* userdata)
+{
+    std::cout << "getID called " <<'\n';
+    Fl_Box* id_num_box_ptr = static_cast<Fl_Box*>(widget->parent()->child(0));
+    long id_num = std::stol(std::string(id_num_box_ptr->label()));
+    std::cout << "id_num: " << id_num <<'\n';
+
+    GUI* gui = static_cast<GUI*>(userdata);
+    (gui->m_ids).insert(id_num);
+
+    std::cout << "now gui->m_ids has ids: ";
+    for (long l : gui->m_ids)
+    {
+        std::cout << l << ', ';
+    }
+    std::cout << '\n';
 }
 
 int GUI::run()

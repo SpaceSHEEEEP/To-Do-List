@@ -2,11 +2,11 @@
 
 struct Task
 {
-    int id_num;
+    long id_num;
     std::string title;
     int completed;
 
-    Task(int i, std::string s, int c)
+    Task(long i, std::string s, int c)
         : id_num(i), title(s), completed(c) 
     {
     }

@@ -15,6 +15,8 @@
 #include "GUI.hpp"
 #include "Database.hpp"
 
+int colour = 0;
+
 Fl_Group* GUI::taskBox(Task & t)
 {
 	Fl_Group* row = new Fl_Group(0, 0, 480, 40);
@@ -29,9 +31,10 @@ Fl_Group* GUI::taskBox(Task & t)
 	Fl_Box* item = new Fl_Box(0, 0, 480, 40, "");
 	item->labelsize(18);
 	item->box(FL_UP_BOX);
-	item->color(FL_WHITE);
 	item->copy_label(t.title.c_str());
-
+	if (t.completed == 0) item->color(fl_rgb_color(253, 255, 182));
+    else item->color(fl_rgb_color(228, 241, 238));
+    
 	Fl_Check_Button* checkButton = new Fl_Check_Button(445, 10, 20, 20);
     checkButton->type(FL_TOGGLE_BUTTON);
     checkButton->callback(updateIDs, this);

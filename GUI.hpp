@@ -22,8 +22,8 @@ class GUI
     Fl_Group* taskBox(Task & t);
     static void getNewTaskTitle(Fl_Widget* widget, void* userdata); // callback
 
-    static void deleteButtonFunction(Fl_Widget* widget);
-    static void getID(Fl_Widget* widget, void* userdata);
+    static void deleteTasks(Fl_Widget* widget);
+    static void updateIDs(Fl_Widget* widget, void* userdata);
 
 public:
     int run();

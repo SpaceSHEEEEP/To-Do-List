@@ -34,7 +34,7 @@ Fl_Group* GUI::taskBox(Task & t)
 
 	Fl_Check_Button* checkButton = new Fl_Check_Button(445, 10, 20, 20);
     checkButton->type(FL_TOGGLE_BUTTON);
-    checkButton->callback(getID, this);
+    checkButton->callback(updateIDs, this);
 
 	row->end();
 	// row->resizable(item);
@@ -59,26 +59,26 @@ void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
     std::cout << "redrew m_taskPack" << '\n';
 }
 
-void GUI::deleteButtonFunction(Fl_Widget* widget)
+void GUI::deleteTasks(Fl_Widget* widget)
 {
     std::cout << "delete button pressed" << '\n';
     // TODO this also calls the getNewTaskTitle function? idk why 
 }
 
-void GUI::getID(Fl_Widget* widget, void* userdata)
+void GUI::updateIDs(Fl_Widget* widget, void* userdata)
 {
-    std::cout << "getID called " <<'\n';
     Fl_Box* id_num_box_ptr = static_cast<Fl_Box*>(widget->parent()->child(0));
-    long id_num = std::stol(std::string(id_num_box_ptr->label()));
-    std::cout << "id_num: " << id_num <<'\n';
-
     GUI* gui = static_cast<GUI*>(userdata);
-    (gui->m_ids).insert(id_num);
+    Fl_Check_Button* checkButton = static_cast<Fl_Check_Button*>(widget);
+    long id_num = std::stol(std::string(id_num_box_ptr->label()));
 
+    if (static_cast<int>(checkButton->value()) == 1) gui->m_ids.insert(id_num);
+    else (gui->m_ids).erase(id_num);
+    
     std::cout << "now gui->m_ids has ids: ";
     for (long l : gui->m_ids)
     {
-        std::cout << l << ', ';
+        std::cout << l << ", ";
     }
     std::cout << '\n';
 }
@@ -98,7 +98,7 @@ int GUI::run()
     // addButton->callback(GUI::deleteButtonFunction, this);
 
 	Fl_Button* deleteButton = new Fl_Button(0, 0, 80,30, "delete");
-    // deleteButton->callback(GUI::deleteButtonFunction, this);
+    deleteButton->callback(GUI::deleteTasks, this);
 
 	Fl_Button* markButton = new Fl_Button(0, 0, 80, 30, "mark");
     // markButton->callback(GUI::deleteButtonFunction, this);

@@ -96,6 +96,16 @@ bool Database::deleteTask(long id_num)
     }
     else std::cout << "execute ok! " << '\n';
 
+    // TODO delete new task to m_tasks vector
+    for (int i = 0; i < m_tasks.size(); i++)
+    {
+        if (m_tasks[i].id_num == id_num)
+        {
+            m_tasks.erase(m_tasks.begin() + i);
+            break;
+        }
+    }
+
     sqlite3_finalize(statement);
     return true;
 }

@@ -59,10 +59,30 @@ void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
     std::cout << "redrew m_taskPack" << '\n';
 }
 
-void GUI::deleteTasks(Fl_Widget* widget)
+void GUI::deleteTasks(Fl_Widget* widget, void* userdata)
 {
     std::cout << "delete button pressed" << '\n';
     // TODO this also calls the getNewTaskTitle function? idk why 
+
+    GUI* gui = static_cast<GUI*>(userdata);
+    for (long l : gui->m_ids)
+    {
+        if (gui->m_db.deleteTask(l)) std::cout << "deleted " << l << '\n';
+        else std::cout << "failed to delete " << l << '\n';
+    }
+    (gui->m_ids).clear();
+    
+    // redraw taskBoxes
+    gui->m_taskPack->clear();
+    for (Task t : gui->m_db.getTaskList())
+    {
+        std::cout << "adding " << t.title << '\n';
+        gui->m_taskPack->add(gui->taskBox(t));
+    }    
+    gui->m_taskPack->redraw();
+    std::cout << "redrew m_taskPack" << '\n';
+
+
 }
 
 void GUI::updateIDs(Fl_Widget* widget, void* userdata)

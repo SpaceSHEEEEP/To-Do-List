@@ -44,6 +44,13 @@ Fl_Group* GUI::taskBox(Task & t)
 	return row;
 }
 
+void GUI::addCallBack(Fl_Widget* widget, void* userdata)
+{
+    // widget is the add button, userdata is Fl_Input
+    // need to find gui
+    std::cout << "addCallBack ran. did nothing " << '\n';
+}
+
 void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
 {
 	// i want to eventually from the userData->value() input the value into addTask in sql.hpp.
@@ -137,28 +144,8 @@ int GUI::run()
 	std::cout << "starting GUI!" << '\n'; 
 	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
 
-	Fl_Pack* buttonsPack = new Fl_Pack(510, 10, 110, 460);
-	buttonsPack->type(Fl_Pack::VERTICAL);
-	buttonsPack->spacing(10);
-	buttonsPack->begin();
-
-	// buttons on the side 
-	Fl_Button* addButton = new Fl_Button(0, 0, 80, 30, "add");
-    // addButton->callback(GUI::deleteButtonFunction, this);
-
-	Fl_Button* deleteButton = new Fl_Button(0, 0, 80,30, "delete");
-    deleteButton->callback(GUI::deleteTasks, this);
-
-	Fl_Button* markButton = new Fl_Button(0, 0, 80, 30, "mark");
-    markButton->callback(GUI::markTasks, this);
-
-	Fl_Button* sortButton = new Fl_Button(0, 0, 80, 30, "sort");
-    // sortButton->callback(GUI::deleteButtonFunction, this);
-
-	buttonsPack->end();
-
-	Fl_Input* taskGetter = new Fl_Input(10, 10, 480, 40, "");
-	taskGetter->callback(GUI::getNewTaskTitle, this);
+	m_taskGetter = new Fl_Input(10, 10, 480, 40, "");
+	m_taskGetter->callback(GUI::getNewTaskTitle, this);
 
 	// Fl_Scroll(int x, int y, int w, int h, const* char label = 0)
 	// this gives a scrollable box
@@ -190,6 +177,28 @@ int GUI::run()
 	// this->m_taskPack->resizable(nullptr);
 
 	scroll->end();
+
+	Fl_Pack* buttonsPack = new Fl_Pack(510, 10, 110, 460);
+	buttonsPack->type(Fl_Pack::VERTICAL);
+	buttonsPack->spacing(10);
+	buttonsPack->begin();
+
+	// buttons on the side 
+	Fl_Button* addButton = new Fl_Button(0, 0, 80, 30, "add");
+    addButton->callback(GUI::addCallBack, m_taskGetter);
+    // i need to replace "this" with pointer to Fl_Input and the gui so i can gui->m_db.addTask()
+
+	Fl_Button* deleteButton = new Fl_Button(0, 0, 80,30, "delete");
+    deleteButton->callback(GUI::deleteTasks, this);
+
+	Fl_Button* markButton = new Fl_Button(0, 0, 80, 30, "mark");
+    markButton->callback(GUI::markTasks, this);
+
+	Fl_Button* sortButton = new Fl_Button(0, 0, 80, 30, "sort");
+    // sortButton->callback(GUI::deleteButtonFunction, this);
+
+	buttonsPack->end();
+
 	m_window->end();
 	m_window->show();
 

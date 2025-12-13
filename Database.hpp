@@ -10,6 +10,9 @@ class Database // TODO comment stuff
     std::vector<Task> m_tasks;
 
 public:
+    template<typename T>
+    bool executeSQL(std::string SQLstatement, T & bindThis);
+
     bool addTask(std::string & taskTitle);
     bool deleteTask(long id_num);
     bool markTask(long id_num);

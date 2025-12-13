@@ -5,6 +5,8 @@
 
 // maybe i dont need main.cpp after this
 
+// EVERYTHING IS SOOO MESSSYYY AAAAAAHHHHHHHHH
+
 #include <iostream> 
 #include "GUI.hpp"
 

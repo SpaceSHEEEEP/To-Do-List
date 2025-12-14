@@ -3,7 +3,7 @@
 A simple To-Do / task-management application — currently under development.  
 Built with SQLite + FLTK for a lightweight GUI, aiming to be a minimal desktop-based task tracker.
 
-## 🔧 What It Does (Planned)  
+## 🔧 What It Does   
 - Add, edit, delete tasks  
 - Mark tasks as done / undone  
 - Persist tasks in a local SQLite database  
@@ -15,9 +15,9 @@ Built with SQLite + FLTK for a lightweight GUI, aiming to be a minimal desktop-b
 - FLTK — for GUI (cross-platform)  
 
 ## 🚧 Status: Work In Progress  
-- Core database logic:                          ✔️ (tasks stored/fetched)  
-- Basic GUI build:                              🔄 / in progress  
-- Task-add/edit/delete interface:               🔄 in progress  
+- Core database logic (store/fetch tasks):      ✔️  
+- Basic GUI build:                              ✔️   
+- Task-add/edit/delete interface:               ✔️  
 - Task filtering, sorting, due-date reminders:  🔄 planned  
 
 ## 🛠 How to Use / Run (when ready)  

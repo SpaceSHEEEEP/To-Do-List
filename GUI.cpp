@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_set>
+#include <algorithm>
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
@@ -47,10 +48,14 @@ Fl_Group* GUI::createTaskBox(Task & t)
 void GUI::refreshScroll()
 {
     m_taskPack->clear();
-    for (Task t : m_db.getTaskList())
+    for (Task & t : m_Database.getTaskList())
     {
-        m_taskPack->add(createTaskBox(t));
+        if (t.completed == 0) m_taskPack->add(createTaskBox(t));
     }    
+    for (Task & t : m_Database.getTaskList())
+    {
+        if (t.completed == 1) m_taskPack->add(createTaskBox(t));
+    }  
     m_taskPack->redraw();
     m_taskPack->parent()->redraw();
     std::cout << "redrew m_taskPack" << '\n';
@@ -66,10 +71,10 @@ void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
 	std::cout << "getNewTaskTitle was called. you entered: " << newTaskTitle << '\n';
 
 	// add to db
-    gui->m_db.addTask(newTaskTitle);
+    gui->m_Database.addTask(newTaskTitle);
 
 	// TODO reload the list
-    gui->m_taskPack->add(gui->createTaskBox((gui->m_db.getTaskList()).back()));
+    gui->m_taskPack->add(gui->createTaskBox((gui->m_Database.getTaskList()).back()));
     gui->m_taskPack->redraw();
     gui->m_taskPack->parent()->redraw();
     std::cout << "redrew m_taskPack" << '\n';
@@ -79,7 +84,17 @@ void GUI::addCallBack(Fl_Widget* widget, void* userdata)
 {
     // widget is the add button, userdata is Fl_Input
     // need to find gui
-    std::cout << "addCallBack ran. did nothing " << '\n';
+    std::cout << "addCallBack ran" << '\n'; return;
+    GUI* gui = static_cast<GUI*>(userdata);
+    std::string newTaskTitle = gui->m_textBox->value();
+    
+    if (gui->m_Database.addTask(newTaskTitle)) std::cout << "added: " << newTaskTitle << '\n';
+    else std::cout << "failed to add: " << newTaskTitle << '\n';
+
+    (gui->m_ids).clear();
+    
+    // redraw taskBoxes
+    gui->refreshScroll();
 }
 
 void GUI::deleteCallBack(Fl_Widget* widget, void* userdata)
@@ -90,7 +105,7 @@ void GUI::deleteCallBack(Fl_Widget* widget, void* userdata)
     GUI* gui = static_cast<GUI*>(userdata);
     for (long l : gui->m_ids)
     {
-        if (gui->m_db.deleteTask(l)) std::cout << "deleted " << l << '\n';
+        if (gui->m_Database.deleteTask(l)) std::cout << "deleted " << l << '\n';
         else std::cout << "failed to delete " << l << '\n';
     }
     (gui->m_ids).clear();
@@ -107,12 +122,18 @@ void GUI::markCallBack(Fl_Widget* widget, void* userdata)
     GUI* gui = static_cast<GUI*>(userdata);
     for (long id_num : gui->m_ids)
     {
-        if (gui->m_db.markTask(id_num)) std::cout << "marked " << id_num << '\n';
+        if (gui->m_Database.markTask(id_num)) std::cout << "marked " << id_num << '\n';
         else std::cout << "failed to mark " << id_num << '\n';
     }
     (gui->m_ids).clear();
     
     // redraw taskBoxes
+    gui->refreshScroll();
+}
+
+void GUI::sortCallBack(Fl_Widget* widget, void* userdata)
+{
+    GUI* gui = static_cast<GUI*>(userdata);
     gui->refreshScroll();
 }
 
@@ -130,8 +151,14 @@ void GUI::updateIDs(Fl_Widget* widget, void* userdata)
 int GUI::run()
 {
 	std::cout << "starting GUI!" << '\n'; 
-	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
+    int running = Fl::run();
+    std::cout << "closing GUI" << '\n';
+	return running;
+}
 
+GUI::GUI()
+{
+	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
 	m_textBox = new Fl_Input(10, 10, 480, 40, "");
 	m_textBox->callback(GUI::getNewTaskTitle, this);
 
@@ -146,23 +173,7 @@ int GUI::run()
 	this->m_taskPack = new Fl_Pack(0, 0, 480, 460);
 	this->m_taskPack->type(Fl_Pack::VERTICAL);
 	this->m_taskPack->spacing(1);
-	this->m_taskPack->begin();
-
-	// these are boxes that are packed nicely
-	// each group is a box of the task, and a check box
-	std::vector<Fl_Group*> rows;
-	// TODO instead of taskTitlesTest, i want the actual db tasks.
-	// i need viewTask to give me a vector of tasks i think
-    std::vector<Task> tasklist = m_db.getTaskList();
-	for (Task & t : tasklist)
-	{
-		rows.push_back(GUI::createTaskBox(t));
-	}
-
-    std::cout << "drew pack of tasks" << '\n';
-
-    this->m_taskPack->end();
-	// this->m_taskPack->resizable(nullptr);
+    this->refreshScroll();
 
 	scroll->end();
 
@@ -174,7 +185,6 @@ int GUI::run()
 	// buttons on the side 
 	Fl_Button* addButton = new Fl_Button(0, 0, 80, 30, "add");
     addButton->callback(GUI::addCallBack, m_textBox);
-    // i need to replace "this" with pointer to Fl_Input and the gui so i can gui->m_db.addTask()
 
 	Fl_Button* deleteButton = new Fl_Button(0, 0, 80,30, "delete");
     deleteButton->callback(GUI::deleteCallBack, this);
@@ -183,14 +193,10 @@ int GUI::run()
     markButton->callback(GUI::markCallBack, this);
 
 	Fl_Button* sortButton = new Fl_Button(0, 0, 80, 30, "sort");
-    // sortButton->callback(GUI::deleteButtonFunction, this);
+    sortButton->callback(GUI::sortCallBack, this);
 
 	buttonsPack->end();
 
 	m_window->end();
 	m_window->show();
-
-    int running = Fl::run();
-    std::cout << "closing GUI" << '\n';
-	return running;
 }

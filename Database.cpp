@@ -44,6 +44,9 @@ bool Database::executeSQL(std::string SQLstatement, T & bindThis)
 
     sqlite3_finalize(statement);
 
+    // refresh m_tasks
+    getTaskList();
+
     return true;
 }
 
@@ -102,7 +105,41 @@ bool Database::markTask(long id_num) // now can only set to complete. fix this
 
 std::vector<Task> Database::getTaskList()
 {
-    return m_tasks;
+    // return m_tasks;
+    // instead of adding tasks and deleting tasks from m_tasks after every add, or delete or mark,
+    // ill just clear m_tasks and add the tasks again
+    // it wont be nice if the to do list has 1000s of tasks but this is a small project
+    m_tasks.clear();
+
+	std::string sqlInput{"SELECT * FROM todos"};
+	sqlite3_stmt * statement;
+	
+	//	sqlite3_prep_v2(ptr to database, 
+	//					c string input, 
+	//					max int to read c_str input, -1 for all
+	//					output to statement, 
+	//					ptr to unread c_str input)
+
+	int returnCode = sqlite3_prepare_v2(m_db, sqlInput.c_str(), -1, &statement, nullptr);
+	if (returnCode != SQLITE_OK)
+	{
+		std::cout << "cant prepare the statement to view tasks" << '\n';
+		std::cout << "error: " << sqlite3_errmsg(m_db) << '\n';
+		return m_tasks;	
+	}
+
+	while ((returnCode = sqlite3_step(statement)) == SQLITE_ROW)
+	{
+		int id = sqlite3_column_int(statement, 0);
+		std::string title = (char*)sqlite3_column_text(statement, 1);
+		int status = sqlite3_column_int(statement, 2);
+
+        m_tasks.push_back(Task(id, title, status));
+	}
+
+	sqlite3_finalize(statement);
+
+    return m_tasks;    
 }
 
 // should add throw exeptions since c++ constructor cant return true or false
@@ -120,34 +157,7 @@ Database::Database()
     m_db = DB;
 
     // add values to m_tasks
-	std::string sqlInput{"SELECT * FROM todos"};
-	sqlite3_stmt * statement;
-	
-	//	sqlite3_prep_v2(ptr to database, 
-	//					c string input, 
-	//					max int to read c_str input, -1 for all
-	//					output to statement, 
-	//					ptr to unread c_str input)
-
-	returnCode = sqlite3_prepare_v2(m_db, sqlInput.c_str(), -1, &statement, nullptr);
-	if (returnCode != SQLITE_OK)
-	{
-		std::cout << "cant prepare the statement to view tasks" << '\n';
-		std::cout << "error: " << sqlite3_errmsg(m_db) << '\n';
-		return;	
-	}
-
-	while ((returnCode = sqlite3_step(statement)) == SQLITE_ROW)
-	{
-		int id = sqlite3_column_int(statement, 0);
-		std::string title = (char*)sqlite3_column_text(statement, 1);
-		int status = sqlite3_column_int(statement, 2);
-
-        m_tasks.push_back(Task(id, title, status));
-	}
-
-	sqlite3_finalize(statement);
-
+    getTaskList();
 }
 
 Database::~Database()

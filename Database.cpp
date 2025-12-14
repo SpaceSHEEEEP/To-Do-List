@@ -45,7 +45,7 @@ bool Database::executeSQL(std::string SQLstatement, T & bindThis)
     sqlite3_finalize(statement);
 
     // refresh m_tasks
-    getTaskList();
+    refreshTasks();
 
     return true;
 }
@@ -90,20 +90,10 @@ bool Database::markTask(long id_num) // now can only set to complete. fix this
     std::string sqlInput{"SELECT completed FROM todos WHERE id = ?;"};
     executeSQL("UPDATE todos SET completed = (CASE WHEN completed == 0 THEN 1 ELSE 0  END) WHERE id = ?;", id_num);
 
-    // Update m_tasks. this dont work always, when mark incomplete for example
-    for (int i = 0; i < m_tasks.size(); i++)
-    {
-        if (m_tasks[i].id_num == id_num)
-        {
-            m_tasks[i].completed++;
-            break;
-        }
-    }
-
     return true;
 }
 
-std::vector<Task> Database::getTaskList()
+std::vector<Task> Database::refreshTasks()
 {
     // return m_tasks;
     // instead of adding tasks and deleting tasks from m_tasks after every add, or delete or mark,
@@ -142,6 +132,11 @@ std::vector<Task> Database::getTaskList()
     return m_tasks;    
 }
 
+std::vector<Task> Database::getTaskList()
+{
+    return m_tasks;
+}
+
 // should add throw exeptions since c++ constructor cant return true or false
 Database::Database() 
 {
@@ -157,7 +152,7 @@ Database::Database()
     m_db = DB;
 
     // add values to m_tasks
-    getTaskList();
+    refreshTasks();
 }
 
 Database::~Database()

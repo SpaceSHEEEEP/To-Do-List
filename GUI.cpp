@@ -17,7 +17,7 @@
 #include "GUI.hpp"
 #include "Database.hpp"
 
-Fl_Group* GUI::taskBox(Task & t)
+Fl_Group* GUI::createTaskBox(Task & t)
 {
 	Fl_Group* row = new Fl_Group(0, 0, 480, 40);
 	row->begin();
@@ -44,11 +44,16 @@ Fl_Group* GUI::taskBox(Task & t)
 	return row;
 }
 
-void GUI::addCallBack(Fl_Widget* widget, void* userdata)
+void GUI::refreshScroll()
 {
-    // widget is the add button, userdata is Fl_Input
-    // need to find gui
-    std::cout << "addCallBack ran. did nothing " << '\n';
+    m_taskPack->clear();
+    for (Task t : m_db.getTaskList())
+    {
+        m_taskPack->add(createTaskBox(t));
+    }    
+    m_taskPack->redraw();
+    m_taskPack->parent()->redraw();
+    std::cout << "redrew m_taskPack" << '\n';
 }
 
 void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
@@ -64,12 +69,20 @@ void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
     gui->m_db.addTask(newTaskTitle);
 
 	// TODO reload the list
-    gui->m_taskPack->add(gui->taskBox((gui->m_db.getTaskList()).back()));
+    gui->m_taskPack->add(gui->createTaskBox((gui->m_db.getTaskList()).back()));
     gui->m_taskPack->redraw();
+    gui->m_taskPack->parent()->redraw();
     std::cout << "redrew m_taskPack" << '\n';
 }
 
-void GUI::deleteTasks(Fl_Widget* widget, void* userdata)
+void GUI::addCallBack(Fl_Widget* widget, void* userdata)
+{
+    // widget is the add button, userdata is Fl_Input
+    // need to find gui
+    std::cout << "addCallBack ran. did nothing " << '\n';
+}
+
+void GUI::deleteCallBack(Fl_Widget* widget, void* userdata)
 {
     std::cout << "delete button pressed" << '\n';
     // TODO this also calls the getNewTaskTitle function? idk why 
@@ -83,42 +96,24 @@ void GUI::deleteTasks(Fl_Widget* widget, void* userdata)
     (gui->m_ids).clear();
     
     // redraw taskBoxes
-    gui->m_taskPack->clear();
-    for (Task t : gui->m_db.getTaskList())
-    {
-        std::cout << "adding " << t.title << '\n';
-        gui->m_taskPack->add(gui->taskBox(t));
-    }    
-    gui->m_taskPack->redraw();
-    std::cout << "redrew m_taskPack" << '\n';
-
-
+    gui->refreshScroll();
 }
 
-void GUI::markTasks(Fl_Widget* widget, void* userdata)
+void GUI::markCallBack(Fl_Widget* widget, void* userdata)
 {
     std::cout << "mark button pressed" << '\n';
     // TODO this also calls the getNewTaskTitle function? idk why 
 
     GUI* gui = static_cast<GUI*>(userdata);
-    for (long l : gui->m_ids)
+    for (long id_num : gui->m_ids)
     {
-        if (gui->m_db.markTask(l)) std::cout << "marked " << l << '\n';
-        else std::cout << "failed to mark " << l << '\n';
+        if (gui->m_db.markTask(id_num)) std::cout << "marked " << id_num << '\n';
+        else std::cout << "failed to mark " << id_num << '\n';
     }
     (gui->m_ids).clear();
     
     // redraw taskBoxes
-    gui->m_taskPack->clear();
-    for (Task t : gui->m_db.getTaskList())
-    {
-        std::cout << "adding " << t.title << '\n';
-        gui->m_taskPack->add(gui->taskBox(t));
-    }    
-    gui->m_taskPack->redraw();
-    std::cout << "redrew m_taskPack" << '\n';
-
-
+    gui->refreshScroll();
 }
 
 void GUI::updateIDs(Fl_Widget* widget, void* userdata)
@@ -130,13 +125,6 @@ void GUI::updateIDs(Fl_Widget* widget, void* userdata)
 
     if (static_cast<int>(checkButton->value()) == 1) gui->m_ids.insert(id_num);
     else (gui->m_ids).erase(id_num);
-    
-    std::cout << "now gui->m_ids has ids: ";
-    for (long l : gui->m_ids)
-    {
-        std::cout << l << ", ";
-    }
-    std::cout << '\n';
 }
 
 int GUI::run()
@@ -144,8 +132,8 @@ int GUI::run()
 	std::cout << "starting GUI!" << '\n'; 
 	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
 
-	m_taskGetter = new Fl_Input(10, 10, 480, 40, "");
-	m_taskGetter->callback(GUI::getNewTaskTitle, this);
+	m_textBox = new Fl_Input(10, 10, 480, 40, "");
+	m_textBox->callback(GUI::getNewTaskTitle, this);
 
 	// Fl_Scroll(int x, int y, int w, int h, const* char label = 0)
 	// this gives a scrollable box
@@ -168,7 +156,7 @@ int GUI::run()
     std::vector<Task> tasklist = m_db.getTaskList();
 	for (Task & t : tasklist)
 	{
-		rows.push_back(GUI::taskBox(t));
+		rows.push_back(GUI::createTaskBox(t));
 	}
 
     std::cout << "drew pack of tasks" << '\n';
@@ -185,14 +173,14 @@ int GUI::run()
 
 	// buttons on the side 
 	Fl_Button* addButton = new Fl_Button(0, 0, 80, 30, "add");
-    addButton->callback(GUI::addCallBack, m_taskGetter);
+    addButton->callback(GUI::addCallBack, m_textBox);
     // i need to replace "this" with pointer to Fl_Input and the gui so i can gui->m_db.addTask()
 
 	Fl_Button* deleteButton = new Fl_Button(0, 0, 80,30, "delete");
-    deleteButton->callback(GUI::deleteTasks, this);
+    deleteButton->callback(GUI::deleteCallBack, this);
 
 	Fl_Button* markButton = new Fl_Button(0, 0, 80, 30, "mark");
-    markButton->callback(GUI::markTasks, this);
+    markButton->callback(GUI::markCallBack, this);
 
 	Fl_Button* sortButton = new Fl_Button(0, 0, 80, 30, "sort");
     // sortButton->callback(GUI::deleteButtonFunction, this);

@@ -158,7 +158,7 @@ int GUI::run()
 
 GUI::GUI()
 {
-	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "TO-DO-LIST!");
+	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "TaskSheep!");
 	m_textBox = new Fl_Input(10, 10, 480, 40, "");
 	m_textBox->callback(GUI::getNewTaskTitle, this);
 

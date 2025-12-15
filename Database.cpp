@@ -142,10 +142,10 @@ Database::Database()
     // open the database
     std::cout << "opening m_db" << '\n';
     sqlite3 * DB;
-    int returnCode{sqlite3_open("todos.db", &DB)};
+    int returnCode{sqlite3_open("TaskSheepDataBase.db", &DB)};
     if (returnCode != SQLITE_OK)
     {
-        std::cout << "error with opening todos.db" << '\n';
+        std::cout << "error with opening TaskSheepDataBase.db" << '\n';
         // TODO if error, maybe file dont exist, then create file
     }
     m_db = DB;

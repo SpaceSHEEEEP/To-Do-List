@@ -30,7 +30,6 @@ bool Database::executeSQL(std::string SQLstatement, T & bindThis)
     else 
     {
         std::cout << "you entered weird variable" << '\n';
-        return false;
     }
 
     // execute statement
@@ -146,10 +145,17 @@ Database::Database()
     int returnCode{sqlite3_open("todos.db", &DB)};
     if (returnCode != SQLITE_OK)
     {
-        std::cout << "error with setupDataBase method" << '\n';
+        std::cout << "error with opening todos.db" << '\n';
         // TODO if error, maybe file dont exist, then create file
     }
     m_db = DB;
+
+    std::string createTable = "CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY NOT NULL, title TEXT NOT NULL, completed INTEGER DEFAULT 0);";
+    float temporary{0.0f};
+    if (!executeSQL(createTable, temporary))
+    {
+        std::cout << "cant make table todos" << '\n';
+    }
 
     // add values to m_tasks
     refreshTasks();

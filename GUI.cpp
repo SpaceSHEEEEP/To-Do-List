@@ -58,7 +58,6 @@ void GUI::refreshScroll()
     }  
     m_taskPack->redraw();
     m_taskPack->parent()->redraw();
-    std::cout << "redrew m_taskPack" << '\n';
 }
 
 void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
@@ -69,6 +68,7 @@ void GUI::getNewTaskTitle(Fl_Widget* widget, void* userdata)
 
     std::string newTaskTitle = inputData->value();
 	std::cout << "getNewTaskTitle was called. you entered: " << newTaskTitle << '\n';
+    inputData->value("");
 
 	// add to db
     gui->m_Database.addTask(newTaskTitle);
@@ -91,7 +91,7 @@ void GUI::addCallBack(Fl_Widget* widget, void* userdata)
     if (gui->m_Database.addTask(newTaskTitle)) std::cout << "added: " << newTaskTitle << '\n';
     else std::cout << "failed to add: " << newTaskTitle << '\n';
 
-    (gui->m_ids).clear();
+    gui->m_ids.clear();
     
     // redraw taskBoxes
     gui->refreshScroll();
@@ -158,7 +158,7 @@ int GUI::run()
 
 GUI::GUI()
 {
-	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "HELLO FLTK!");
+	m_window = new Fl_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "TO-DO-LIST!");
 	m_textBox = new Fl_Input(10, 10, 480, 40, "");
 	m_textBox->callback(GUI::getNewTaskTitle, this);
 

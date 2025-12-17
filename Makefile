@@ -6,7 +6,7 @@ all : run
 
 run :  
 	clear
-	$(COMPILER) main.cpp Database.cpp FLTK_wireframe.cpp GUI.cpp -o $(OUTPUT_NAME) $(LINKER)
+	$(COMPILER) main.cpp Database.cpp GUI.cpp -o $(OUTPUT_NAME) $(LINKER)
 	./$(OUTPUT_NAME)
 
 clean: 

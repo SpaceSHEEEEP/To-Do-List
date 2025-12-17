@@ -1,5 +1,6 @@
 #include <iostream> 
 #include <type_traits>
+#include <filesystem>
 #include <stdio.h>
 #include <sqlite3.h>
 #include "Database.hpp"
@@ -142,7 +143,30 @@ Database::Database()
     // open the database
     std::cout << "opening m_db" << '\n';
     sqlite3 * DB;
-    int returnCode{sqlite3_open("TaskSheepDataBase.db", &DB)};
+    std::string DB_path = std::string(getenv("HOME")) + "/.local/share/todoApp/TaskSheepDataBase.db";
+    // create directory if non existent
+    std::string wd = std::string(getenv("HOME")) + "/.local/share/todoApp";
+    std::filesystem::directory_entry todoDirectory{wd.c_str()};
+    if (!todoDirectory.exists())
+    {
+        std::cout << wd << " doesnt exist " << '\n';
+        std::cout << "creating a new directory now " << '\n';
+        if (std::filesystem::create_directory(wd))
+        {
+            std::cout << "directory created!" << '\n';
+        }
+        else 
+        {
+            std::cout << "failed to create directory" << '\n';
+        }
+    }
+    else 
+    {
+        std::cout << wd << " exists" << '\n';
+    }
+
+    
+    int returnCode{sqlite3_open(DB_path.c_str(), &DB)};
     if (returnCode != SQLITE_OK)
     {
         std::cout << "error with opening TaskSheepDataBase.db" << '\n';
